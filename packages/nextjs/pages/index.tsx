@@ -17,7 +17,13 @@ const Home: NextPage = () => {
     abi: WatchListInfo?.abi,
     functionName: "getUserWatchList",
     watch: true,
+    enabled: !!address,
+    args: [address as string],
   });
+
+  useEffect(() => {
+    console.log(userWatchList, "userWatchList");
+  }, [userWatchList]);
 
   const [selectedContract, setSelectedContract] = useState<string>("");
   const [readFunctions, setReadFunctions] = useState<AbiFunction[]>([]);
@@ -80,7 +86,7 @@ const Home: NextPage = () => {
         <meta name="description" content="Created with 🏗 scaffold-eth" />
       </Head>
 
-      <div className="flex items-center flex-col flex-grow pt-10">
+      <div className="flex w-full items-center flex-col flex-grow pt-10">
         <div className="px-5 ">
           <form className="flex flex-col" onSubmit={handleSubmit(onSubmit)}>
             <input
