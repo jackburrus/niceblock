@@ -8,9 +8,9 @@ import "hardhat/console.sol";
 contract WatchList {
     mapping (address => address[]) public watchlists;
 
-    function addToWatchList(address[] memory contractAddresses) external {
-        watchlists[msg.sender] = contractAddresses;
-    }
+    function addToWatchList(address contractAddress) external {
+    watchlists[msg.sender].push(contractAddress);
+}
 
     function removeFromWatchList(address contractAddress) external {
         address[] storage userWatchlist = watchlists[msg.sender];

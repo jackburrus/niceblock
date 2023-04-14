@@ -1,16 +1,77 @@
+import { useEffect, useState } from "react";
 import Head from "next/head";
-import Link from "next/link";
 import type { NextPage } from "next";
-import { BugAntIcon, SparklesIcon } from "@heroicons/react/24/outline";
+import { useForm } from "react-hook-form";
+import { useAccount, useContractRead } from "wagmi";
+import { useDeployedContractInfo, useScaffoldContractWrite } from "~~/hooks/scaffold-eth";
+import { getContractAbi } from "~~/hooks/useEtherscanAbi";
+import { getSourceCode } from "~~/hooks/useEtherscanSourceCode";
 
 const Home: NextPage = () => {
-  // const [selectedContract, setSelectedContract] = useState<string>("");
-  // const { register, handleSubmit } = useForm();
+  const { address } = useAccount();
+  const { data: WatchListInfo } = useDeployedContractInfo("WatchList");
+  const { register, handleSubmit } = useForm();
+
+  const { data: userWatchList } = useContractRead({
+    address: WatchListInfo?.address,
+    abi: WatchListInfo?.abi,
+    functionName: "getUserWatchList",
+    watch: true,
+  });
+
+  const [selectedContract, setSelectedContract] = useState<string>("");
+  const [readFunctions, setReadFunctions] = useState<AbiFunction[]>([]);
+  const [writeFunctions, setWriteFunctions] = useState<AbiFunction[]>([]);
+  const [sourceCode, setSourceCode] = useState<string>("");
+  useEffect(() => {
+    if (userWatchList?.length) {
+      setSelectedContract(userWatchList?.[0]);
+    }
+  }, [userWatchList]);
   // const { data: abiData } = useEtherscanAbi(selectedContract);
+  // const { data: sourceCode } = useEtherscanSourceCode(selectedContract);
+
+  const { writeAsync } = useScaffoldContractWrite({
+    contractName: "WatchList",
+    functionName: "addToWatchList",
+    args: [selectedContract?.replace(" ", "")],
+  });
+
+  const handleFetchData = async () => {
+    // ABI Data
+    const abiData = await getContractAbi(selectedContract);
+    const { readableFunctions, writableFunctions } = splitAbiIntoReadWriteFunctions(JSON.parse(abiData));
+    setReadFunctions(readableFunctions);
+    setWriteFunctions(writableFunctions);
+
+    // Source Code
+    const sourceCode = await getSourceCode(selectedContract);
+    setSourceCode(sourceCode);
+  };
+  useEffect(() => {
+    if (selectedContract) {
+      handleFetchData();
+    }
+  }, [selectedContract]);
+
+  useEffect(() => {
+    console.log(sourceCode);
+  }, [sourceCode]);
 
   // useEffect(() => {
-  //   console.log(abiData);
-  // }, [abiData]);
+  //   if (abiData) {
+  //     const { readableFunctions, writableFunctions } = splitAbiIntoReadWriteFunctions(JSON.parse(abiData));
+  //     console.log(readableFunctions, writableFunctions);
+  //     setReadFunctions(readableFunctions);
+  //     setWriteFunctions(writableFunctions);
+  //   }
+  // }, [abiData, selectedContract]);
+
+  const onSubmit = async () => {
+    if (selectedContract && address) {
+      await writeAsync();
+    }
+  };
 
   return (
     <>
@@ -20,44 +81,48 @@ const Home: NextPage = () => {
       </Head>
 
       <div className="flex items-center flex-col flex-grow pt-10">
-        <div className="px-5">
-          <input placeholder="Search for a contract" type="text" />
-          <h1 className="text-center mb-8">
-            <span className="block text-2xl mb-2">Welcome to</span>
-            <span className="block text-4xl font-bold">scaffold-eth 2</span>
-          </h1>
-          <p className="text-center text-lg">
-            Get started by editing{" "}
-            <code className="italic bg-base-300 text-base font-bold">packages/nextjs/pages/index.tsx</code>
-          </p>
-          <p className="text-center text-lg">
-            Edit your smart contract <code className="italic bg-base-300 text-base font-bold">YourContract.sol</code> in{" "}
-            <code className="italic bg-base-300 text-base font-bold">packages/hardhat/contracts</code>
-          </p>
+        <div className="px-5 ">
+          <form className="flex flex-col" onSubmit={handleSubmit(onSubmit)}>
+            <input
+              placeholder="Search for a contract"
+              className="text-black"
+              type="text"
+              {...register("search", {
+                required: true,
+                onChange(event) {
+                  setSelectedContract(event.target.value);
+                },
+              })}
+            />
+            <button type="submit">Submit</button>
+            <span>0x9008D19f58AAbD9eD0D60971565AA8510560ab41</span>
+          </form>
+          <div className="flex flex-col">
+            <h1>Watchlist</h1>
+            {userWatchList?.map((contract: string, index: number) => (
+              <span onClick={() => setSelectedContract(contract)} key={index}>
+                {contract}
+              </span>
+            ))}
+          </div>
         </div>
 
-        <div className="flex-grow bg-base-300 w-full mt-16 px-8 py-12">
-          <div className="flex justify-center items-center gap-12 flex-col sm:flex-row">
-            <div className="flex flex-col bg-base-100 px-10 py-10 text-center items-center max-w-xs rounded-3xl">
-              <BugAntIcon className="h-8 w-8 fill-secondary" />
-              <p>
-                Tinker with your smart contract using the{" "}
-                <Link href="/debug" passHref className="link">
-                  Debug Contract
-                </Link>{" "}
-                tab.
-              </p>
-            </div>
-            <div className="flex flex-col bg-base-100 px-10 py-10 text-center items-center max-w-xs rounded-3xl">
-              <SparklesIcon className="h-8 w-8 fill-secondary" />
-              <p>
-                Experiment with{" "}
-                <Link href="/example-ui" passHref className="link">
-                  Example UI
-                </Link>{" "}
-                to build your own UI.
-              </p>
-            </div>
+        <div className="flex-grow flex-row flex bg-base-300 w-full mt-16 px-8 py-12">
+          <div className="flex flex-col">
+            <h2>Read Functions</h2>
+            {readFunctions.map((func, index) => (
+              <div key={index}>
+                <h3>{func.name}</h3>
+              </div>
+            ))}
+          </div>
+          <div className="flex flex-col">
+            <h2>Write Functions</h2>
+            {writeFunctions.map((func, index) => (
+              <div key={index}>
+                <h3>{func.name}</h3>
+              </div>
+            ))}
           </div>
         </div>
       </div>
@@ -66,3 +131,35 @@ const Home: NextPage = () => {
 };
 
 export default Home;
+
+interface AbiFunction {
+  inputs: any;
+  name: string;
+  outputs: any;
+  stateMutability: string;
+  type: string;
+}
+
+interface FunctionList {
+  readableFunctions: AbiFunction[];
+  writableFunctions: AbiFunction[];
+}
+
+function splitAbiIntoReadWriteFunctions(abi: AbiFunction[]): FunctionList {
+  const result: FunctionList = {
+    readableFunctions: [],
+    writableFunctions: [],
+  };
+  for (const abiEntry of abi) {
+    console.log(abiEntry);
+    if (abiEntry.type === "function") {
+      console.log(abiEntry.type);
+      if (abiEntry.stateMutability === "view" || abiEntry.stateMutability === "pure") {
+        result.readableFunctions.push(abiEntry);
+      } else if (abiEntry.stateMutability === "nonpayable" || abiEntry.stateMutability === "payable") {
+        result.writableFunctions.push(abiEntry);
+      }
+    }
+  }
+  return result;
+}

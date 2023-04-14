@@ -9,6 +9,9 @@ const nextConfig = {
   eslint: {
     ignoreDuringBuilds: process.env.NEXT_PUBLIC_IGNORE_BUILD_ERROR === "true",
   },
+  env: {
+    ETHERSCAN_API_KEY: process.env.ETHERSCAN_API_KEY,
+  },
 };
 
 module.exports = nextConfig;

@@ -152,9 +152,9 @@ const contracts = {
             {
               inputs: [
                 {
-                  internalType: "address[]",
-                  name: "contractAddresses",
-                  type: "address[]",
+                  internalType: "address",
+                  name: "contractAddress",
+                  type: "address",
                 },
               ],
               name: "addToWatchList",
