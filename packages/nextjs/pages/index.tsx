@@ -7,6 +7,8 @@ import "swiper/css";
 // Import Swiper React components
 import { Swiper, SwiperSlide } from "swiper/react";
 import { useAccount, useContractRead } from "wagmi";
+import PlusIcon from "~~/components/PlusIcon";
+import SearchIcon from "~~/components/SearchIcon";
 import WatchlistCarousel from "~~/components/WatchListCarousel";
 import ContractCard from "~~/components/ui/ContractCard";
 import ReadCard from "~~/components/ui/ReadCard";
@@ -116,7 +118,6 @@ const Home: NextPage = () => {
       await writeAsync();
     }
   };
-
   return (
     <>
       <Head>
@@ -126,10 +127,13 @@ const Home: NextPage = () => {
 
       <div className="flex w-full items-center flex-col flex-grow pt-10 ">
         <div className="px-5  md:min-w-[400px] min-w-[90%] max-w-[90%]">
-          <form className="flex flex-col" onSubmit={handleSubmit(onSubmit)}>
+          <form
+            className="flex flex-row border-2 rounded-md py-2 border-[#516175] bg-[#111A2E] justify-between"
+            onSubmit={handleSubmit(onSubmit)}
+          >
             <input
               placeholder="Search for a contract"
-              className="text-black"
+              className="text-[#93A3B8] flex-1 pl-2 bg-[#111A2E] py-2  placeholder-[#93A3B8]"
               type="text"
               {...register("search", {
                 required: true,
@@ -138,23 +142,33 @@ const Home: NextPage = () => {
                 },
               })}
             />
-            <button type="submit">Submit</button>
+            <div className=" items-center justify-end flex bg-[#111A2E]">
+              <button className="bg-[#0584C3] p-1 rounded-md mr-2">
+                <SearchIcon />
+              </button>
+            </div>
           </form>
-          <div className="flex flex-col border items-center min-w-[90%] ">
-            <h1>Watchlist</h1>
+          <div className="flex flex-col mt-4 items-center min-w-[90%] ">
             <ContractCard
               status={status}
               selectedContractDetails={selectedContractDetails}
               setSelectedContract={setSelectedContract}
             />
           </div>
+          <button
+            onClick={onSubmit}
+            className="bg-[#111A2E] w-full flex flex-row items-center justify-center py-4 rounded-md mt-2"
+          >
+            Add to Watchlist <PlusIcon />
+          </button>
+          <h1 className="mt-10">Watchlist</h1>
           <div className="flex flex-row overflow-x-scroll">
             {userWatchList?.map((contract, index) => {
               return (
                 <div
                   onClick={() => setSelectedContract(contract)}
-                  className={` w-32 h-32 flex items-center justify-center text-sm border m-4 ${
-                    contract.toLowerCase() === selectedContract.toLowerCase() && "border border-red-500"
+                  className={` w-32 h-32 bg-[#111A2E] p-4 flex items-center justify-center text-sm  m-4 ${
+                    contract.toLowerCase() === selectedContract.toLowerCase() && "border border-[#0584C3]"
                   }`}
                 >
                   {truncateAddress(contract)}

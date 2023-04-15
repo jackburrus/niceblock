@@ -7,6 +7,7 @@ const contractDetailsPrompt = `I'm going to provide you with Ethereum Solidity c
     description: string,
     emoji: string,
     usefulMethod: string,
+    gasOptimizationScore: string,
 }
 
 
@@ -17,6 +18,8 @@ For description, i'd like you to analyze the contract and give me a short descri
 For emoji, i'd like you to analyze the contract and give me an emoji that best represents the contract. You can use any emoji you want, but please use only one. If you decide you're not able to find an emoji, just use the default emoji of a contract (📜).
 
 For interesting methods, i'd like you to analyze the contract and give me the most interesting function that you think are worth looking at. You can use any function you want. If you decide you're not able to find any interesting functions, you can just give an empty array.
+
+For gas optimization score, i'd like you to analyze the contract and give me a score from 0 to 10. 0 means the contract is not optimized at all and 10 means the contract is fully optimized. You can use any score you want, but please use only one. If you decide you're not able to find a score, you can just give a score of N/A.
 
 Ensure you have both opening and closing brackets.
 
