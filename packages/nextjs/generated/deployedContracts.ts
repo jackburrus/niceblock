@@ -523,6 +523,88 @@ const contracts = {
       },
     },
   ],
+  44787: [
+    {
+      name: "alfajores",
+      chainId: "44787",
+      contracts: {
+        WatchList: {
+          address: "0x7F70066c84cb8816FB84F433976F4E7FD3265968",
+          abi: [
+            {
+              inputs: [
+                {
+                  internalType: "address",
+                  name: "contractAddress",
+                  type: "address",
+                },
+              ],
+              name: "addToWatchList",
+              outputs: [],
+              stateMutability: "nonpayable",
+              type: "function",
+            },
+            {
+              inputs: [
+                {
+                  internalType: "address",
+                  name: "userAddress",
+                  type: "address",
+                },
+              ],
+              name: "getUserWatchList",
+              outputs: [
+                {
+                  internalType: "address[]",
+                  name: "",
+                  type: "address[]",
+                },
+              ],
+              stateMutability: "view",
+              type: "function",
+            },
+            {
+              inputs: [
+                {
+                  internalType: "address",
+                  name: "contractAddress",
+                  type: "address",
+                },
+              ],
+              name: "removeFromWatchList",
+              outputs: [],
+              stateMutability: "nonpayable",
+              type: "function",
+            },
+            {
+              inputs: [
+                {
+                  internalType: "address",
+                  name: "",
+                  type: "address",
+                },
+                {
+                  internalType: "uint256",
+                  name: "",
+                  type: "uint256",
+                },
+              ],
+              name: "watchlists",
+              outputs: [
+                {
+                  internalType: "address",
+                  name: "",
+                  type: "address",
+                },
+              ],
+              stateMutability: "view",
+              type: "function",
+            },
+          ],
+        },
+      },
+    },
+  ],
   534353: [
     {
       name: "scrollAlpha",

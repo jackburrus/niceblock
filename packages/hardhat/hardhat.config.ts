@@ -75,6 +75,15 @@ const config: HardhatUserConfig = {
       url: "https://alpha-rpc.scroll.io/l2",
       accounts: [deployerPrivateKey],
     },
+    alfajores: {
+      url: "https://alfajores-forno.celo-testnet.org",
+      accounts: [deployerPrivateKey],
+      chainId: 44787,
+    },
+    taiko: {
+      url: "https://rpc.a2.taiko.xyz",
+      accounts: [deployerPrivateKey],
+    },
   },
   verify: {
     etherscan: {

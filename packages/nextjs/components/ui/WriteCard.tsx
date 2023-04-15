@@ -1,29 +1,29 @@
 import { useState } from "react";
-import { AbiFunction } from "../../pages/index";
-import EyeIcon from "../EyeIcon";
+import PencilIcon from "../PencilIcon";
 import { displayTxResult } from "../scaffold-eth";
-import { useForm } from "react-hook-form";
-import { useContractRead } from "wagmi";
+import { useContractWrite } from "wagmi";
+import { AbiFunction } from "~~/pages";
 
-export default function ReadCard({ func, abi, contract }: { func: AbiFunction; abi: any; contract: string }) {
-  const [readSelected, setReadSelected] = useState(false);
+export default function WriteCard({ func, abi, contract }: { func: AbiFunction; abi: any; contract: string }) {
+  const [writeSelected, setWriteSelected] = useState(false);
   const [inputValues, setInputValues] = useState<any>({
     // [input.name]: "",
   });
-  const { data: contractData, error } = useContractRead({
+  const {
+    data: contractData,
+    error,
+    writeAsync,
+  } = useContractWrite({
     chainId: 1,
     abi,
     address: contract,
     functionName: func.name,
     args: Object.values(inputValues),
-    enabled: readSelected,
   });
-
-  const {} = useForm();
 
   return (
     <div className="py-4 border-b border-[#516175] shadow-md my-2  w-auto flex flex-row justify-between items-center">
-      <h1>{func.name}</h1>
+      <h1 className="max-w-[250px] truncate">{func.name}</h1>
 
       <div className="flex flex-col">
         {func.inputs.map(input => {
@@ -41,18 +41,18 @@ export default function ReadCard({ func, abi, contract }: { func: AbiFunction; a
         })}
       </div>
 
-      {contractData && readSelected ? (
-        <div onClick={() => setReadSelected(false)} className="bg-[#283758] rounded w-auto py-3 px-2">
+      {contractData && writeSelected ? (
+        <div onClick={() => setWriteSelected(false)} className="bg-[#283758] rounded w-auto py-3 px-2">
           {displayTxResult(contractData)}
         </div>
       ) : (
         <div
           onClick={() => {
-            setReadSelected(true);
+            setWriteSelected(true);
           }}
           className="bg-[#283758] rounded w-auto py-3 px-2"
         >
-          <EyeIcon />
+          <PencilIcon />
         </div>
       )}
     </div>

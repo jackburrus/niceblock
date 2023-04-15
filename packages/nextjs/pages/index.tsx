@@ -13,6 +13,7 @@ import SearchIcon from "~~/components/SearchIcon";
 import WatchlistCarousel from "~~/components/WatchListCarousel";
 import ContractCard from "~~/components/ui/ContractCard";
 import ReadCard from "~~/components/ui/ReadCard";
+import WriteCard from "~~/components/ui/WriteCard";
 import { useDeployedContractInfo, useScaffoldContractWrite } from "~~/hooks/scaffold-eth";
 import { getContractAbi } from "~~/hooks/useEtherscanAbi";
 import { getSourceCode } from "~~/hooks/useEtherscanSourceCode";
@@ -155,10 +156,6 @@ const Home: NextPage = () => {
   }, [selectedContract]);
 
   useEffect(() => {
-    console.log(readFunctions);
-  }, [readFunctions]);
-
-  useEffect(() => {
     // console.log(sourceCode, "sourceCode");
     if (sourceCode && selectedContractName) {
       // console.log("sourceCode", sourceCode);
@@ -262,7 +259,7 @@ const Home: NextPage = () => {
             </a>
           </div>
 
-          <div className="flex  flex-col w-full p-5 overflow-hidden">
+          <div className="flex  flex-col w-full py-5 overflow-hidden">
             {selectedTab === "read" && (
               <div className="flex flex-col w-full h-full p-5 overflow-y-scroll">
                 {readFunctions.map((func, index) => (
@@ -273,9 +270,7 @@ const Home: NextPage = () => {
             {selectedTab === "write" && (
               <div className="flex flex-col w-full h-full p-5 overflow-y-scroll">
                 {writeFunctions.map((func, index) => (
-                  <div key={index}>
-                    <span>{func.name}</span>
-                  </div>
+                  <WriteCard abi={abiData} contract={selectedContract} func={func} key={index} />
                 ))}
               </div>
             )}
