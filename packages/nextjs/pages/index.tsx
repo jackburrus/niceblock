@@ -9,9 +9,11 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { useAccount, useContractRead } from "wagmi";
 import WatchlistCarousel from "~~/components/WatchListCarousel";
 import ContractCard from "~~/components/ui/ContractCard";
+import ReadCard from "~~/components/ui/ReadCard";
 import { useDeployedContractInfo, useScaffoldContractWrite } from "~~/hooks/scaffold-eth";
 import { getContractAbi } from "~~/hooks/useEtherscanAbi";
 import { getSourceCode } from "~~/hooks/useEtherscanSourceCode";
+import { truncateAddress } from "~~/utils/helpers";
 import { getContractDetails, useCreateMutation } from "~~/utils/openai-queries";
 
 const Home: NextPage = () => {
@@ -40,6 +42,7 @@ const Home: NextPage = () => {
   const [selectedTab, setSelectedTab] = useState<"read" | "write">("read");
   const [sourceCode, setSourceCode] = useState<string>("");
   const contractString = extractMainContractContent(sourceCode);
+  const [abiData, setAbiData] = useState<any>("");
   const {
     mutateAsync: fetchOpenAiData,
     data: dataFromOpenAi,
@@ -76,6 +79,7 @@ const Home: NextPage = () => {
   const handleFetchData = async () => {
     // ABI Data
     const abiData = await getContractAbi(selectedContract);
+    setAbiData(abiData);
     const { readableFunctions, writableFunctions } = splitAbiIntoReadWriteFunctions(JSON.parse(abiData));
     setReadFunctions(readableFunctions);
     setWriteFunctions(writableFunctions);
@@ -143,21 +147,23 @@ const Home: NextPage = () => {
               selectedContractDetails={selectedContractDetails}
               setSelectedContract={setSelectedContract}
             />
-            {userWatchList?.map((contract, index) => {
-              return (
-                <div
-                  onClick={() => setSelectedContract(contract)}
-                  className={`${contract.toLowerCase() === selectedContract.toLowerCase() && "text-red-500"}`}
-                >
-                  {contract}
-                </div>
-              );
-            })}
+            <div className="overflow-y-scroll">
+              {userWatchList?.map((contract, index) => {
+                return (
+                  <div
+                    onClick={() => setSelectedContract(contract)}
+                    className={`${contract.toLowerCase() === selectedContract.toLowerCase() && "text-red-500"}`}
+                  >
+                    {truncateAddress(contract)}
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </div>
 
-        <div className="flex-grow relative flex-row flex bg-base-300 w-full mt-16 ">
-          <div className="tabs absolute top-0 w-full ">
+        <div className="flex-grow relative flex-row overflow-y-scroll flex bg-base-300 w-full mt-16 ">
+          <div className="tabs absolute top-0 w-full overflow-y-scroll ">
             <a
               onClick={() => setSelectedTab("read")}
               className={`tab tab-lifted flex flex-1 ${selectedTab === "read" && "tab-active"}`}
@@ -171,18 +177,17 @@ const Home: NextPage = () => {
               Write
             </a>
           </div>
-          <div className="flex flex-col w-full h-full p-5">
+
+          <div className="flex  flex-col w-full p-5 overflow-hidden">
             {selectedTab === "read" && (
-              <div className="flex flex-col w-full h-full p-5">
+              <div className="flex flex-col w-full h-full p-5 overflow-y-scroll">
                 {readFunctions.map((func, index) => (
-                  <div key={index}>
-                    <span>{func.name}</span>
-                  </div>
+                  <ReadCard abi={abiData} contract={selectedContract} func={func} key={index} />
                 ))}
               </div>
             )}
             {selectedTab === "write" && (
-              <div className="flex flex-col w-full h-full p-5">
+              <div className="flex flex-col w-full h-full p-5 overflow-y-scroll">
                 {writeFunctions.map((func, index) => (
                   <div key={index}>
                     <span>{func.name}</span>
@@ -200,7 +205,7 @@ const Home: NextPage = () => {
 
 export default Home;
 
-interface AbiFunction {
+export interface AbiFunction {
   inputs: any;
   name: string;
   outputs: any;

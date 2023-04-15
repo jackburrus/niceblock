@@ -48,7 +48,7 @@ const ScaffoldEthApp = ({ Component, pageProps }: AppProps) => {
             style={{ position: "fixed", top: 0, left: 0, height: "100%", width: "100%" }}
           >
             <Header />
-            <main className="relative flex flex-col flex-1">
+            <main className="relative flex flex-col flex-1 overflow-y-scroll">
               <Component {...pageProps} />
             </main>
             <Footer />
