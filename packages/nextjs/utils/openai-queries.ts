@@ -112,7 +112,6 @@ export function useCreateMutation(
         return;
       }
       const result = await readStream(data);
-      console.log(result);
       onData(result); // Call the onData callback with the result
     },
     onError: e => {
