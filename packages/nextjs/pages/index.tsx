@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Head from "next/head";
 import type { NextPage } from "next";
 import { useForm } from "react-hook-form";
@@ -17,7 +17,36 @@ import { useDeployedContractInfo, useScaffoldContractWrite } from "~~/hooks/scaf
 import { getContractAbi } from "~~/hooks/useEtherscanAbi";
 import { getSourceCode } from "~~/hooks/useEtherscanSourceCode";
 import { truncateAddress } from "~~/utils/helpers";
-import { getContractDetails, useCreateMutation } from "~~/utils/openai-queries";
+import { getContractDetails, getSortedFunctions, useCreateMutation } from "~~/utils/openai-queries";
+
+type AbiItem = {
+  name?: string;
+  type: string;
+};
+function extractFunctionNames(abi: AbiItem[]): string[] {
+  return abi
+    .filter(item => item.type === "function")
+    .map(item => item.name || "")
+    .filter(name => name.length > 0);
+}
+
+type FunctionObject = {
+  inputs: any[];
+  name: string;
+  outputs: any[];
+  stateMutability: string;
+  type: string;
+};
+
+function reorderFunctionArray(functionNames: string[], functionObjects: FunctionObject[]): FunctionObject[] {
+  const orderedFunctions = functionNames
+    .map(name => functionObjects.find(func => func.name === name))
+    .filter((func): func is FunctionObject => Boolean(func));
+
+  const remainingFunctions = functionObjects.filter(func => !functionNames.includes(func.name));
+
+  return [...orderedFunctions, ...remainingFunctions];
+}
 
 const Home: NextPage = () => {
   const { address } = useAccount();
@@ -33,10 +62,6 @@ const Home: NextPage = () => {
     args: [address as string],
   });
 
-  useEffect(() => {
-    console.log(userWatchList, "userWatchList");
-  }, [userWatchList]);
-
   const [selectedContract, setSelectedContract] = useState<string>("");
   const [selectedContractName, setSelectedContractName] = useState<string>("");
   const [selectedContractDetails, setSelectedContractDetails] = useState<any>({});
@@ -46,6 +71,8 @@ const Home: NextPage = () => {
   const [sourceCode, setSourceCode] = useState<string>("");
   const contractString = extractMainContractContent(sourceCode);
   const [abiData, setAbiData] = useState<any>("");
+  const [functionNames, setFunctionNames] = useState<string[]>([]);
+
   const {
     mutateAsync: fetchOpenAiData,
     data: dataFromOpenAi,
@@ -54,24 +81,26 @@ const Home: NextPage = () => {
     () => getContractDetails(contractString, selectedContractName),
     result => {
       // Do something with the awaited data, like updating the state or triggering side effects
-      console.log(extractKeyValuePairs(result));
       setSelectedContractDetails(extractKeyValuePairs(result));
     },
   );
 
-  useEffect(() => {
-    console.log(status, "status");
-  }, [status]);
+  const { mutateAsync: fetchSortedFunctions } = useCreateMutation(
+    () => getSortedFunctions(functionNames),
+    result => {
+      const topFunctions = extractStringsFromPartialArray(result);
+      const reorderedReads = reorderFunctionArray(topFunctions, readFunctions);
+      const reorderdWrites = reorderFunctionArray(topFunctions, writeFunctions);
+      setReadFunctions(reorderedReads);
+      setWriteFunctions(reorderdWrites);
+    },
+  );
 
   useEffect(() => {
     if (userWatchList?.length) {
       setSelectedContract(userWatchList?.[0]);
     }
   }, [userWatchList]);
-
-  useEffect(() => {
-    console.log(dataFromOpenAi, "dataFromOpenAi");
-  }, [dataFromOpenAi]);
 
   const { writeAsync } = useScaffoldContractWrite({
     contractName: "WatchList",
@@ -88,6 +117,10 @@ const Home: NextPage = () => {
   const handleFetchData = async () => {
     // ABI Data
     const abiData = await getContractAbi(selectedContract);
+    // const localFunctionNames = extractFunctionNames(JSON.parse(abiData));
+    // console.log(localFunctionNames, "localFunctionNames");
+    // setFunctionNames(localFunctionNames);
+    // await fetchSortedFunctions(localFunctionNames);
     setAbiData(abiData);
     const { readableFunctions, writableFunctions } = splitAbiIntoReadWriteFunctions(JSON.parse(abiData));
     setReadFunctions(readableFunctions);
@@ -95,16 +128,35 @@ const Home: NextPage = () => {
 
     // Source Code
     const localSourceCode = await getSourceCode(selectedContract);
+    const contractString = extractMainContractContent(localSourceCode);
+
     setSourceCode(localSourceCode?.SourceCode);
     setSelectedContractName(localSourceCode?.ContractName);
   };
+
+  const handleSortFunctions = async names => {
+    await fetchSortedFunctions(names);
+  };
+
+  useEffect(() => {
+    if (abiData) {
+      const localFunctionNames = extractFunctionNames(JSON.parse(abiData));
+      if (localFunctionNames.length) {
+        handleSortFunctions(localFunctionNames);
+      }
+    }
+  }, [abiData]);
+
   useEffect(() => {
     if (selectedContract) {
-      console.log(selectedContractDetails);
       handleFetchData();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedContract]);
+
+  useEffect(() => {
+    console.log(readFunctions);
+  }, [readFunctions]);
 
   useEffect(() => {
     // console.log(sourceCode, "sourceCode");
@@ -116,7 +168,6 @@ const Home: NextPage = () => {
   }, [sourceCode]);
 
   const runAnalyzeContract = async (sourceCode, selectedContractName) => {
-    console.log(selectedContractName, "contractString");
     await fetchOpenAiData();
   };
 
@@ -369,4 +420,12 @@ function extractKeyValuePairs(inputString: string): Record<string, string> {
   }
 
   return result;
+}
+
+function extractStringsFromPartialArray(partialArrayString: string): string[] {
+  const stringPattern = /"([^"]+)"/g;
+  const matches = partialArrayString.match(stringPattern) || [];
+  const extractedStrings = matches.map(match => match.slice(1, -1));
+
+  return extractedStrings;
 }

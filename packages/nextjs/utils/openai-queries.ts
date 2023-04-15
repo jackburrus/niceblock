@@ -51,6 +51,38 @@ export const getContractDetails = async (
   }
 };
 
+const functionSortingPrompt = `I'm going to provide you with an array of Ethereum smart contract function names. You are going to analyze and reorder the names in a single array. The order of the function names should depend on the usefulness of the function. The most useful function should be at the top of the array and the least useful function should be at the bottom of the array. You should only return an array of function names
+
+[
+    "functionName1",
+    "functionName2",
+]
+
+You should not return any other information. Here are the function names:`;
+
+export const getSortedFunctions = async (query: string) => {
+  try {
+    const response = await fetch("/api/response", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        prompt: functionSortingPrompt + query,
+      }),
+    });
+    if (!response.ok) {
+      throw new Error(response.statusText);
+    }
+
+    // This data is a ReadableStream
+    const data = response.body;
+    return data;
+  } catch (e) {
+    console.log(e);
+  }
+};
+
 export async function readStream(data: ReadableStream): Promise<string> {
   const reader = data.getReader();
   const decoder = new TextDecoder();
