@@ -1,16 +1,11 @@
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Head from "next/head";
 import type { NextPage } from "next";
 import { useForm } from "react-hook-form";
-// Import Swiper styles
-import "swiper/css";
-// Import Swiper React components
-import { Swiper, SwiperSlide } from "swiper/react";
 import { useAccount, useContractRead } from "wagmi";
 import MinusIcon from "~~/components/MinusIcon";
 import PlusIcon from "~~/components/PlusIcon";
 import SearchIcon from "~~/components/SearchIcon";
-import WatchlistCarousel from "~~/components/WatchListCarousel";
 import ContractCard from "~~/components/ui/ContractCard";
 import ReadCard from "~~/components/ui/ReadCard";
 import WriteCard from "~~/components/ui/WriteCard";
@@ -129,7 +124,6 @@ const Home: NextPage = () => {
 
     // Source Code
     const localSourceCode = await getSourceCode(selectedContract);
-    const contractString = extractMainContractContent(localSourceCode);
 
     setSourceCode(localSourceCode?.SourceCode);
     setSelectedContractName(localSourceCode?.ContractName);
@@ -156,10 +150,7 @@ const Home: NextPage = () => {
   }, [selectedContract]);
 
   useEffect(() => {
-    // console.log(sourceCode, "sourceCode");
     if (sourceCode && selectedContractName) {
-      // console.log("sourceCode", sourceCode);
-      // console.log(sourceCode, "sourceCode");
       runAnalyzeContract(sourceCode, selectedContractName);
     }
   }, [sourceCode]);

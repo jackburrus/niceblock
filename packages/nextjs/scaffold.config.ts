@@ -33,6 +33,66 @@ export const polygonZkEvmTestnet = {
   testnet: true,
 };
 
+export const celoAlfajores = {
+  id: 44_787,
+  name: "Alfajores",
+  network: "celo-alfajores",
+  nativeCurrency: {
+    decimals: 18,
+    name: "CELO",
+    symbol: "A-CELO",
+  },
+  rpcUrls: {
+    default: {
+      http: ["https://alfajores-forno.celo-testnet.org"],
+    },
+    infura: {
+      http: ["https://celo-alfajores.infura.io/v3"],
+    },
+    public: {
+      http: ["https://alfajores-forno.celo-testnet.org"],
+    },
+  },
+  blockExplorers: {
+    default: {
+      name: "Celo Explorer",
+      url: "https://explorer.celo.org/alfajores",
+    },
+    etherscan: { name: "CeloScan", url: "https://alfajores.celoscan.io/" },
+  },
+  contracts: {
+    multicall3: {
+      address: "0xcA11bde05977b3631167028862bE2a173976CA11",
+      blockCreated: 14569001,
+    },
+  },
+  testnet: true,
+};
+
+export const scrollTestnet = {
+  id: 534_353,
+  name: "Scroll Testnet",
+  network: "scroll-testnet",
+  nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 },
+  rpcUrls: {
+    default: {
+      http: ["https://alpha-rpc.scroll.io/l2"],
+      webSocket: ["wss://alpha-rpc.scroll.io/l2/ws"],
+    },
+    public: {
+      http: ["https://alpha-rpc.scroll.io/l2"],
+      webSocket: ["wss://alpha-rpc.scroll.io/l2/ws"],
+    },
+  },
+  blockExplorers: {
+    default: {
+      name: "Blockscout",
+      url: "https://blockscout.scroll.io",
+    },
+  },
+  testnet: true,
+};
+
 const scaffoldConfig = {
   // The network where your DApp lives in
   // targetNetwork: chains.hardhat,
