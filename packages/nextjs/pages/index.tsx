@@ -2,7 +2,12 @@ import { useEffect, useState } from "react";
 import Head from "next/head";
 import type { NextPage } from "next";
 import { useForm } from "react-hook-form";
+// Import Swiper styles
+import "swiper/css";
+// Import Swiper React components
+import { Swiper, SwiperSlide } from "swiper/react";
 import { useAccount, useContractRead } from "wagmi";
+import WatchlistCarousel from "~~/components/WatchListCarousel";
 import ContractCard from "~~/components/ui/ContractCard";
 import { useDeployedContractInfo, useScaffoldContractWrite } from "~~/hooks/scaffold-eth";
 import { getContractAbi } from "~~/hooks/useEtherscanAbi";
@@ -35,7 +40,11 @@ const Home: NextPage = () => {
   const [selectedTab, setSelectedTab] = useState<"read" | "write">("read");
   const [sourceCode, setSourceCode] = useState<string>("");
   const contractString = extractMainContractContent(sourceCode);
-  const { mutateAsync: fetchOpenAiData, data: dataFromOpenAi } = useCreateMutation(
+  const {
+    mutateAsync: fetchOpenAiData,
+    data: dataFromOpenAi,
+    status,
+  } = useCreateMutation(
     () => getContractDetails(contractString, selectedContractName),
     result => {
       // Do something with the awaited data, like updating the state or triggering side effects
@@ -43,6 +52,11 @@ const Home: NextPage = () => {
       setSelectedContractDetails(extractKeyValuePairs(result));
     },
   );
+
+  useEffect(() => {
+    console.log(status, "status");
+  }, [status]);
+
   useEffect(() => {
     if (userWatchList?.length) {
       setSelectedContract(userWatchList?.[0]);
@@ -73,6 +87,7 @@ const Home: NextPage = () => {
   };
   useEffect(() => {
     if (selectedContract) {
+      console.log(selectedContractDetails);
       handleFetchData();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -89,7 +104,7 @@ const Home: NextPage = () => {
 
   const runAnalyzeContract = async (sourceCode, selectedContractName) => {
     console.log(selectedContractName, "contractString");
-    const data = await fetchOpenAiData();
+    await fetchOpenAiData();
   };
 
   const onSubmit = async () => {
@@ -123,9 +138,21 @@ const Home: NextPage = () => {
           </form>
           <div className="flex flex-col items-center ">
             <h1>Watchlist</h1>
-            {userWatchList?.map((contract: string, index: number) => (
-              <ContractCard key={index} setSelectedContract={setSelectedContract} contract={contract} />
-            ))}
+            <ContractCard
+              status={status}
+              selectedContractDetails={selectedContractDetails}
+              setSelectedContract={setSelectedContract}
+            />
+            {userWatchList?.map((contract, index) => {
+              return (
+                <div
+                  onClick={() => setSelectedContract(contract)}
+                  className={`${contract.toLowerCase() === selectedContract.toLowerCase() && "text-red-500"}`}
+                >
+                  {contract}
+                </div>
+              );
+            })}
           </div>
         </div>
 
