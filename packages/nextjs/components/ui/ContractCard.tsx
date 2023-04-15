@@ -13,7 +13,10 @@ export default function ContractCard({
 }) {
   if (status === "loading")
     return (
-      <div onClick={() => setSelectedContract(contract)} className="  h-36 rounded-md  border shadow-md">
+      <div
+        onClick={() => setSelectedContract(contract)}
+        className="text-[#93A3B8] w-full p-4 h-auto rounded-md bg-[#111A2E] border shadow-md border-[#516175]"
+      >
         <h1>Loading...</h1>
       </div>
     );
@@ -36,7 +39,6 @@ export default function ContractCard({
 
       <p>{selectedContractDetails["description"]}</p>
       <p>Useful Function: {selectedContractDetails["usefulMethod"]}</p>
-      <p>Gas Optimization Score: {selectedContractDetails["gasOptimizationScore"]}</p>
     </div>
   );
 }

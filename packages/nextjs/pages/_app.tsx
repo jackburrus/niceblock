@@ -31,7 +31,13 @@ const ScaffoldEthApp = ({ Component, pageProps }: AppProps) => {
   }, [setEthPrice, price]);
 
   useEffect(() => {
-    setIsDarkTheme(isDarkMode);
+    setIsDarkTheme(true);
+  }, [isDarkMode]);
+
+  useEffect(() => {
+    const body = document.body;
+    body.setAttribute("data-theme", "scaffoldEthDark");
+    // body.setAttribute("data-theme", "scaffoldEthDark");
   }, [isDarkMode]);
 
   return (
@@ -51,7 +57,7 @@ const ScaffoldEthApp = ({ Component, pageProps }: AppProps) => {
             <main className="relative flex flex-col flex-1 overflow-y-scroll">
               <Component {...pageProps} />
             </main>
-            <Footer />
+            {/* <Footer /> */}
           </div>
           <Toaster />
         </RainbowKitProvider>

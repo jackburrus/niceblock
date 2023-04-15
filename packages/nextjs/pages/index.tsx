@@ -7,6 +7,7 @@ import "swiper/css";
 // Import Swiper React components
 import { Swiper, SwiperSlide } from "swiper/react";
 import { useAccount, useContractRead } from "wagmi";
+import MinusIcon from "~~/components/MinusIcon";
 import PlusIcon from "~~/components/PlusIcon";
 import SearchIcon from "~~/components/SearchIcon";
 import WatchlistCarousel from "~~/components/WatchListCarousel";
@@ -75,6 +76,12 @@ const Home: NextPage = () => {
   const { writeAsync } = useScaffoldContractWrite({
     contractName: "WatchList",
     functionName: "addToWatchList",
+    args: [selectedContract?.replace(" ", "")],
+  });
+
+  const { writeAsync: removeFromWatchList } = useScaffoldContractWrite({
+    contractName: "WatchList",
+    functionName: "removeFromWatchList",
     args: [selectedContract?.replace(" ", "")],
   });
 
@@ -155,12 +162,22 @@ const Home: NextPage = () => {
               setSelectedContract={setSelectedContract}
             />
           </div>
-          <button
-            onClick={onSubmit}
-            className="bg-[#111A2E] w-full flex flex-row items-center justify-center py-4 rounded-md mt-2"
-          >
-            Add to Watchlist <PlusIcon />
-          </button>
+          {userWatchList?.includes(selectedContract) ? (
+            <button
+              onClick={removeFromWatchList}
+              className="bg-[#111A2E] w-full flex flex-row items-center justify-center py-4 rounded-md mt-2"
+            >
+              Remove from Watchlist <MinusIcon />
+            </button>
+          ) : (
+            <button
+              onClick={onSubmit}
+              className="bg-[#111A2E] w-full flex flex-row items-center justify-center py-4 rounded-md mt-2"
+            >
+              Add to Watchlist <PlusIcon />
+            </button>
+          )}
+
           <h1 className="mt-10">Watchlist</h1>
           <div className="flex flex-row overflow-x-scroll">
             {userWatchList?.map((contract, index) => {
