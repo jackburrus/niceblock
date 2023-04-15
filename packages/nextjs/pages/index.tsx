@@ -3,6 +3,7 @@ import Head from "next/head";
 import type { NextPage } from "next";
 import { useForm } from "react-hook-form";
 import { useAccount, useContractRead } from "wagmi";
+import ContractCard from "~~/components/ui/ContractCard";
 import { useDeployedContractInfo, useScaffoldContractWrite } from "~~/hooks/scaffold-eth";
 import { getContractAbi } from "~~/hooks/useEtherscanAbi";
 import { getSourceCode } from "~~/hooks/useEtherscanSourceCode";
@@ -88,8 +89,8 @@ const Home: NextPage = () => {
         <meta name="description" content="Created with 🏗 scaffold-eth" />
       </Head>
 
-      <div className="flex w-full items-center flex-col flex-grow pt-10">
-        <div className="px-5 ">
+      <div className="flex w-full items-center flex-col flex-grow pt-10 ">
+        <div className="px-5  md:min-w-[400px] min-w-[90%] max-w-[90%]">
           <form className="flex flex-col" onSubmit={handleSubmit(onSubmit)}>
             <input
               placeholder="Search for a contract"
@@ -103,14 +104,11 @@ const Home: NextPage = () => {
               })}
             />
             <button type="submit">Submit</button>
-            <span>0x9008D19f58AAbD9eD0D60971565AA8510560ab41</span>
           </form>
-          <div className="flex flex-col">
+          <div className="flex flex-col items-center ">
             <h1>Watchlist</h1>
             {userWatchList?.map((contract: string, index: number) => (
-              <span onClick={() => setSelectedContract(contract)} key={index}>
-                {contract}
-              </span>
+              <ContractCard key={index} setSelectedContract={setSelectedContract} contract={contract} />
             ))}
           </div>
         </div>
