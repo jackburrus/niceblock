@@ -28,6 +28,7 @@ const Home: NextPage = () => {
   const [selectedContract, setSelectedContract] = useState<string>("");
   const [readFunctions, setReadFunctions] = useState<AbiFunction[]>([]);
   const [writeFunctions, setWriteFunctions] = useState<AbiFunction[]>([]);
+  const [selectedTab, setSelectedTab] = useState<"read" | "write">("read");
   const [sourceCode, setSourceCode] = useState<string>("");
   useEffect(() => {
     if (userWatchList?.length) {
@@ -58,6 +59,7 @@ const Home: NextPage = () => {
     if (selectedContract) {
       handleFetchData();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedContract]);
 
   useEffect(() => {
@@ -113,22 +115,40 @@ const Home: NextPage = () => {
           </div>
         </div>
 
-        <div className="flex-grow flex-row flex bg-base-300 w-full mt-16 px-8 py-12">
-          <div className="flex flex-col">
-            <h2>Read Functions</h2>
-            {readFunctions.map((func, index) => (
-              <div key={index}>
-                <h3>{func.name}</h3>
-              </div>
-            ))}
+        <div className="flex-grow relative flex-row flex bg-base-300 w-full mt-16 ">
+          <div className="tabs absolute top-0 w-full ">
+            <a
+              onClick={() => setSelectedTab("read")}
+              className={`tab tab-lifted flex flex-1 ${selectedTab === "read" && "tab-active"}`}
+            >
+              Read
+            </a>
+            <a
+              onClick={() => setSelectedTab("write")}
+              className={`tab tab-lifted flex flex-1 ${selectedTab === "write" && "tab-active"}`}
+            >
+              Write
+            </a>
           </div>
-          <div className="flex flex-col">
-            <h2>Write Functions</h2>
-            {writeFunctions.map((func, index) => (
-              <div key={index}>
-                <h3>{func.name}</h3>
+          <div className="flex flex-col w-full h-full p-5">
+            {selectedTab === "read" && (
+              <div className="flex flex-col w-full h-full p-5">
+                {readFunctions.map((func, index) => (
+                  <div key={index}>
+                    <span>{func.name}</span>
+                  </div>
+                ))}
               </div>
-            ))}
+            )}
+            {selectedTab === "write" && (
+              <div className="flex flex-col w-full h-full p-5">
+                {writeFunctions.map((func, index) => (
+                  <div key={index}>
+                    <span>{func.name}</span>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -168,4 +188,23 @@ function splitAbiIntoReadWriteFunctions(abi: AbiFunction[]): FunctionList {
     }
   }
   return result;
+}
+
+{
+  /* <div className="flex flex-col">
+            <h2>Read Functions</h2>
+            {readFunctions.map((func, index) => (
+              <div key={index}>
+                <h3>{func.name}</h3>
+              </div>
+            ))}
+          </div>
+          <div className="flex flex-col">
+            <h2>Write Functions</h2>
+            {writeFunctions.map((func, index) => (
+              <div key={index}>
+                <h3>{func.name}</h3>
+              </div>
+            ))}
+          </div> */
 }

@@ -223,6 +223,88 @@ const contracts = {
       },
     },
   ],
+  1442: [
+    {
+      name: "polygonZkEvmTestnet",
+      chainId: "1442",
+      contracts: {
+        WatchList: {
+          address: "0xf0dcA876D092f13F07642A004DF67BfB0680Ab3A",
+          abi: [
+            {
+              inputs: [
+                {
+                  internalType: "address",
+                  name: "contractAddress",
+                  type: "address",
+                },
+              ],
+              name: "addToWatchList",
+              outputs: [],
+              stateMutability: "nonpayable",
+              type: "function",
+            },
+            {
+              inputs: [
+                {
+                  internalType: "address",
+                  name: "userAddress",
+                  type: "address",
+                },
+              ],
+              name: "getUserWatchList",
+              outputs: [
+                {
+                  internalType: "address[]",
+                  name: "",
+                  type: "address[]",
+                },
+              ],
+              stateMutability: "view",
+              type: "function",
+            },
+            {
+              inputs: [
+                {
+                  internalType: "address",
+                  name: "contractAddress",
+                  type: "address",
+                },
+              ],
+              name: "removeFromWatchList",
+              outputs: [],
+              stateMutability: "nonpayable",
+              type: "function",
+            },
+            {
+              inputs: [
+                {
+                  internalType: "address",
+                  name: "",
+                  type: "address",
+                },
+                {
+                  internalType: "uint256",
+                  name: "",
+                  type: "uint256",
+                },
+              ],
+              name: "watchlists",
+              outputs: [
+                {
+                  internalType: "address",
+                  name: "",
+                  type: "address",
+                },
+              ],
+              stateMutability: "view",
+              type: "function",
+            },
+          ],
+        },
+      },
+    },
+  ],
   31337: [
     {
       name: "localhost",
@@ -435,6 +517,88 @@ const contracts = {
             {
               stateMutability: "payable",
               type: "receive",
+            },
+          ],
+        },
+      },
+    },
+  ],
+  534353: [
+    {
+      name: "scrollAlpha",
+      chainId: "534353",
+      contracts: {
+        WatchList: {
+          address: "0x7F70066c84cb8816FB84F433976F4E7FD3265968",
+          abi: [
+            {
+              inputs: [
+                {
+                  internalType: "address",
+                  name: "contractAddress",
+                  type: "address",
+                },
+              ],
+              name: "addToWatchList",
+              outputs: [],
+              stateMutability: "nonpayable",
+              type: "function",
+            },
+            {
+              inputs: [
+                {
+                  internalType: "address",
+                  name: "userAddress",
+                  type: "address",
+                },
+              ],
+              name: "getUserWatchList",
+              outputs: [
+                {
+                  internalType: "address[]",
+                  name: "",
+                  type: "address[]",
+                },
+              ],
+              stateMutability: "view",
+              type: "function",
+            },
+            {
+              inputs: [
+                {
+                  internalType: "address",
+                  name: "contractAddress",
+                  type: "address",
+                },
+              ],
+              name: "removeFromWatchList",
+              outputs: [],
+              stateMutability: "nonpayable",
+              type: "function",
+            },
+            {
+              inputs: [
+                {
+                  internalType: "address",
+                  name: "",
+                  type: "address",
+                },
+                {
+                  internalType: "uint256",
+                  name: "",
+                  type: "uint256",
+                },
+              ],
+              name: "watchlists",
+              outputs: [
+                {
+                  internalType: "address",
+                  name: "",
+                  type: "address",
+                },
+              ],
+              stateMutability: "view",
+              type: "function",
             },
           ],
         },
