@@ -7,6 +7,7 @@ import ContractCard from "~~/components/ui/ContractCard";
 import { useDeployedContractInfo, useScaffoldContractWrite } from "~~/hooks/scaffold-eth";
 import { getContractAbi } from "~~/hooks/useEtherscanAbi";
 import { getSourceCode } from "~~/hooks/useEtherscanSourceCode";
+import { getContractDetails, useCreateMutation } from "~~/utils/openai-queries";
 
 const Home: NextPage = () => {
   const { address } = useAccount();
@@ -27,17 +28,30 @@ const Home: NextPage = () => {
   }, [userWatchList]);
 
   const [selectedContract, setSelectedContract] = useState<string>("");
+  const [selectedContractName, setSelectedContractName] = useState<string>("");
+  const [selectedContractDetails, setSelectedContractDetails] = useState<any>({});
   const [readFunctions, setReadFunctions] = useState<AbiFunction[]>([]);
   const [writeFunctions, setWriteFunctions] = useState<AbiFunction[]>([]);
   const [selectedTab, setSelectedTab] = useState<"read" | "write">("read");
   const [sourceCode, setSourceCode] = useState<string>("");
+  const contractString = extractMainContractContent(sourceCode);
+  const { mutateAsync: fetchOpenAiData, data: dataFromOpenAi } = useCreateMutation(
+    () => getContractDetails(contractString, selectedContractName),
+    result => {
+      // Do something with the awaited data, like updating the state or triggering side effects
+      console.log(extractKeyValuePairs(result));
+      setSelectedContractDetails(extractKeyValuePairs(result));
+    },
+  );
   useEffect(() => {
     if (userWatchList?.length) {
       setSelectedContract(userWatchList?.[0]);
     }
   }, [userWatchList]);
-  // const { data: abiData } = useEtherscanAbi(selectedContract);
-  // const { data: sourceCode } = useEtherscanSourceCode(selectedContract);
+
+  useEffect(() => {
+    console.log(dataFromOpenAi, "dataFromOpenAi");
+  }, [dataFromOpenAi]);
 
   const { writeAsync } = useScaffoldContractWrite({
     contractName: "WatchList",
@@ -53,8 +67,9 @@ const Home: NextPage = () => {
     setWriteFunctions(writableFunctions);
 
     // Source Code
-    const sourceCode = await getSourceCode(selectedContract);
-    setSourceCode(sourceCode);
+    const localSourceCode = await getSourceCode(selectedContract);
+    setSourceCode(localSourceCode?.SourceCode);
+    setSelectedContractName(localSourceCode?.ContractName);
   };
   useEffect(() => {
     if (selectedContract) {
@@ -64,17 +79,18 @@ const Home: NextPage = () => {
   }, [selectedContract]);
 
   useEffect(() => {
-    console.log(sourceCode);
+    // console.log(sourceCode, "sourceCode");
+    if (sourceCode && selectedContractName) {
+      // console.log("sourceCode", sourceCode);
+      // console.log(sourceCode, "sourceCode");
+      runAnalyzeContract(sourceCode, selectedContractName);
+    }
   }, [sourceCode]);
 
-  // useEffect(() => {
-  //   if (abiData) {
-  //     const { readableFunctions, writableFunctions } = splitAbiIntoReadWriteFunctions(JSON.parse(abiData));
-  //     console.log(readableFunctions, writableFunctions);
-  //     setReadFunctions(readableFunctions);
-  //     setWriteFunctions(writableFunctions);
-  //   }
-  // }, [abiData, selectedContract]);
+  const runAnalyzeContract = async (sourceCode, selectedContractName) => {
+    console.log(selectedContractName, "contractString");
+    const data = await fetchOpenAiData();
+  };
 
   const onSubmit = async () => {
     if (selectedContract && address) {
@@ -148,6 +164,7 @@ const Home: NextPage = () => {
               </div>
             )}
           </div>
+          {/* <p>{sourceCode}</p> */}
         </div>
       </div>
     </>
@@ -175,9 +192,7 @@ function splitAbiIntoReadWriteFunctions(abi: AbiFunction[]): FunctionList {
     writableFunctions: [],
   };
   for (const abiEntry of abi) {
-    console.log(abiEntry);
     if (abiEntry.type === "function") {
-      console.log(abiEntry.type);
       if (abiEntry.stateMutability === "view" || abiEntry.stateMutability === "pure") {
         result.readableFunctions.push(abiEntry);
       } else if (abiEntry.stateMutability === "nonpayable" || abiEntry.stateMutability === "payable") {
@@ -188,21 +203,105 @@ function splitAbiIntoReadWriteFunctions(abi: AbiFunction[]): FunctionList {
   return result;
 }
 
-{
-  /* <div className="flex flex-col">
-            <h2>Read Functions</h2>
-            {readFunctions.map((func, index) => (
-              <div key={index}>
-                <h3>{func.name}</h3>
-              </div>
-            ))}
-          </div>
-          <div className="flex flex-col">
-            <h2>Write Functions</h2>
-            {writeFunctions.map((func, index) => (
-              <div key={index}>
-                <h3>{func.name}</h3>
-              </div>
-            ))}
-          </div> */
+function extractMainContractContent(sourceCode: string): string | null {
+  // The regex pattern to match the content between 'contract' keyword and its corresponding braces
+  // This pattern also checks if the contract inherits from other contracts
+  const regex = /contract\s+(\w+)\s*(?:is\s+\w+(?:\s*,\s*\w+)*)?\s*\{([\s\S]*?)\}/g;
+
+  // An exhaustive list of common boilerplate contract names
+  const boilerplateContracts = [
+    "Ownable",
+    "Pausable",
+    "ReentrancyGuard",
+    "ERC20",
+    "ERC721",
+    "ERC1155",
+    "SafeMath",
+    "IERC20",
+    "IERC721",
+    "IERC1155",
+    "Context",
+    "AccessControl",
+    "TimelockController",
+    "EnumerableSet",
+    "ERC20Detailed",
+    "ERC20Burnable",
+    "ERC20Capped",
+    "ERC20Mintable",
+    "ERC20Pausable",
+    "ERC721Burnable",
+    "ERC721Enumerable",
+    "ERC721Metadata",
+    "ERC721Pausable",
+    "ERC721URIStorage",
+    "ERC1155Burnable",
+    "ERC1155MetadataURI",
+    "ERC1155Pausable",
+    "MinterRole",
+    "PauserRole",
+    "SignerRole",
+    "WhitelistAdminRole",
+    "WhitelistRole",
+    "BlacklistRole",
+    "SafeERC20",
+    "Address",
+    "EnumerableMap",
+    "Strings",
+    "Roles",
+    "ECDSA",
+    "SafeCast",
+    "Governor",
+    "GovernorTimelockControl",
+    "GovernorVotes",
+    "GovernorVotesQuorumFraction",
+    "GovernorCountingSimple",
+    "GovernorCountingCompound",
+  ];
+
+  let mainContract: string | null = null;
+  let maxInheritanceCount = -1;
+  let match: RegExpExecArray | null;
+
+  // Iterate through all the matches
+  while ((match = regex.exec(sourceCode)) !== null) {
+    const contractName = match[1];
+
+    // Skip boilerplate contracts
+    if (boilerplateContracts.includes(contractName)) {
+      continue;
+    }
+
+    const inheritanceCount = (match[0].match(/is\s+\w+/g) || []).length;
+
+    // Check if the current contract has more inheritance than the previous main contract
+    if (inheritanceCount > maxInheritanceCount) {
+      maxInheritanceCount = inheritanceCount;
+      mainContract = match[2];
+    }
+  }
+
+  // Return the content of the main contract (with the most inheritance) or null if no contract was found
+  return mainContract;
+}
+
+function extractKeyValuePairs(inputString: string): Record<string, string> {
+  // The regex pattern to match the key-value pairs
+  const regex = /(\w+):\s*"([^"]*)"/g;
+
+  // Initialize an empty object to store the key-value pairs
+  const result: Record<string, string> = {};
+
+  // Execute the regex on the inputString
+  let match: RegExpExecArray | null;
+
+  while ((match = regex.exec(inputString)) !== null) {
+    // Extract the key and value from the match
+    const key = match[1];
+    const value = match[2];
+
+    // Add the key-value pair to the result object
+    result[key] = value;
+  }
+
+  return result;
 }

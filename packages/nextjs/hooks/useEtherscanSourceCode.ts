@@ -7,8 +7,8 @@ export const getSourceCode = async (address: string) => {
     );
 
     const { result } = await response.json();
-    console.log(result, "res");
-    return result[0].SourceCode;
+
+    return result[0];
   } catch (error) {
     console.error(`Error fetching contract source code for address ${address}: ${error}`);
     throw error;
