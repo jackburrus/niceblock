@@ -16,7 +16,7 @@ export default function ReadCard({ func, abi, contract }: { func: AbiFunction; a
   });
 
   return (
-    <div className="py-4 border border-green-500 flex flex-row justify-between">
+    <div className="py-4 border shadow-md my-2 rounded-md w-auto flex flex-row justify-between">
       <h1>{func.name}</h1>
       <button
         onClick={() => {

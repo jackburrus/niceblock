@@ -6,6 +6,7 @@ const contractDetailsPrompt = `I'm going to provide you with Ethereum Solidity c
     readableName: string,
     description: string,
     emoji: string,
+    usefulMethod: string,
 }
 
 
@@ -14,6 +15,8 @@ For readable name, i'd like you to analyze the contract and give me the name of 
 For description, i'd like you to analyze the contract and give me a short description of what the contract does. Use no more than 10 words.
 
 For emoji, i'd like you to analyze the contract and give me an emoji that best represents the contract. You can use any emoji you want, but please use only one. If you decide you're not able to find an emoji, just use the default emoji of a contract (📜).
+
+For interesting methods, i'd like you to analyze the contract and give me the most interesting function that you think are worth looking at. You can use any function you want. If you decide you're not able to find any interesting functions, you can just give an empty array.
 
 Ensure you have both opening and closing brackets.
 

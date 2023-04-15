@@ -24,10 +24,14 @@ export default function ContractCard({
       </div>
     );
   return (
-    <div onClick={() => setSelectedContract(contract)} className="  h-36 rounded-md  border shadow-md">
-      <p>{selectedContractDetails["emoji"]}</p>
-      <h1>{selectedContractDetails["readableName"]}</h1>
+    <div onClick={() => setSelectedContract(contract)} className=" w-full p-4 h-auto rounded-md  border shadow-md">
+      <div>
+        <p className="text-4xl">{selectedContractDetails["emoji"]}</p>
+        <h1>{selectedContractDetails["readableName"]}</h1>
+      </div>
+
       <p>{selectedContractDetails["description"]}</p>
+      <p>Useful Function: {selectedContractDetails["usefulMethod"]}</p>
     </div>
   );
 }

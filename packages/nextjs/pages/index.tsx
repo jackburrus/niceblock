@@ -140,25 +140,27 @@ const Home: NextPage = () => {
             />
             <button type="submit">Submit</button>
           </form>
-          <div className="flex flex-col items-center ">
+          <div className="flex flex-col border items-center min-w-[90%] ">
             <h1>Watchlist</h1>
             <ContractCard
               status={status}
               selectedContractDetails={selectedContractDetails}
               setSelectedContract={setSelectedContract}
             />
-            <div className="overflow-y-scroll">
-              {userWatchList?.map((contract, index) => {
-                return (
-                  <div
-                    onClick={() => setSelectedContract(contract)}
-                    className={`${contract.toLowerCase() === selectedContract.toLowerCase() && "text-red-500"}`}
-                  >
-                    {truncateAddress(contract)}
-                  </div>
-                );
-              })}
-            </div>
+          </div>
+          <div className="flex flex-row overflow-x-scroll">
+            {userWatchList?.map((contract, index) => {
+              return (
+                <div
+                  onClick={() => setSelectedContract(contract)}
+                  className={` w-32 h-32 flex items-center justify-center text-sm border m-4 ${
+                    contract.toLowerCase() === selectedContract.toLowerCase() && "border border-red-500"
+                  }`}
+                >
+                  {truncateAddress(contract)}
+                </div>
+              );
+            })}
           </div>
         </div>
 
